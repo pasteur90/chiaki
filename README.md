@@ -3,6 +3,14 @@
 
 # Chiaki
 
+## About SanYing OHC-PC01 Support
+Currently supporting only one-hand mascon scheme.
+Mapping:
+Yellow: Point out
+White: Horn
+Black: Light
+Reverser: Wiper
+
 **Disclaimer:** This project is not endorsed or certified by Sony Interactive Entertainment LLC.
 
 [![Travis Build Status](https://travis-ci.com/thestr4ng3r/chiaki.svg?branch=master)](https://travis-ci.com/thestr4ng3r/chiaki) [![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/dnj9cmx5mmaaawer?svg=true)](https://ci.appveyor.com/project/thestr4ng3r/chiaki) [![builds.sr.ht Status](https://builds.sr.ht/~thestr4ng3r/chiaki.svg)](https://builds.sr.ht/~thestr4ng3r/chiaki?)
