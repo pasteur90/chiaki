@@ -258,6 +258,79 @@ QString Controller::GetName()
 #endif
 }
 
+#ifdef CHIAKI_GUI_ENABLE_SDL_GAMECONTROLLER
+static ChiakiControllerState get_mascon_state(SDL_GameController *controller) {
+	ChiakiControllerState state;
+	static ChiakiControllerState state_last;
+	chiaki_controller_state_set_idle(&state);
+
+	int acc = 0;
+
+	acc |= (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_START) ? 1 : 0) << 0;
+	acc |= (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_BACK) ? 1 : 0) << 1;
+	acc |= (SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT) >> 7 ? 1 : 0) << 2;
+	acc |= (SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT) >> 7 ? 1 : 0) << 3;
+
+	int horn = 0;
+	horn = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B) ? 1 : 0;
+	if (horn) {
+		state.buttons |= CHIAKI_CONTROLLER_BUTTON_MOON;
+	}
+
+	int reverser = 0;
+	static int reverser_last = 0;
+	reverser = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
+	if ((!reverser_last && reverser) || (reverser_last && !reverser)) {
+		state.buttons |= CHIAKI_CONTROLLER_BUTTON_BOX;
+	}
+	reverser_last = reverser;
+
+	int finger = 0;
+	finger = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A) ? 1 : 0;
+	if (finger) {
+		state.buttons |= CHIAKI_CONTROLLER_BUTTON_PYRAMID;
+	}
+
+	int light = 0;
+	light = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_Y) ? 1 : 0;
+	if (light) {
+		state.buttons |= CHIAKI_CONTROLLER_BUTTON_CROSS;
+	}
+
+	bool is_mascon_state_valid = true;
+
+	if (!acc) {
+		is_mascon_state_valid = false;;
+	} else if (acc == 1) {
+		state.l2_state = 255u;
+	} else {
+		state.l2_state = 0u;
+		switch (acc) {
+			case 2: state.left_y = -32768; break;
+			case 3: state.left_y = -29491; break;
+			case 4: state.left_y = -26214; break;
+			case 5: state.left_y = -22937; break;
+			case 6: state.left_y = -19660; break;
+			case 7: state.left_y = -16383; break;
+			case 8: state.left_y = -13106; break;
+			case 9: state.left_y = -9829; break;
+			case 10: state.left_y = 0; break;
+			case 11: state.left_y = 9830; break;
+			case 12: state.left_y = 16383; break;
+			case 13: state.left_y = 22938; break;
+			case 14: state.left_y = 29491; break;
+			case 15: state.left_y = 32767; break;
+			default: break;
+		}
+	}
+
+	if (!is_mascon_state_valid)
+		return state_last;
+	state_last = state;
+	return state;
+}
+#endif
+
 ChiakiControllerState Controller::GetState()
 {
 	ChiakiControllerState state;
@@ -265,7 +338,8 @@ ChiakiControllerState Controller::GetState()
 #ifdef CHIAKI_GUI_ENABLE_SDL_GAMECONTROLLER
 	if(!controller)
 		return state;
-
+	state = get_mascon_state(controller);
+/* 
 	state.buttons |= SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A) ? CHIAKI_CONTROLLER_BUTTON_CROSS : 0;
 	state.buttons |= SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B) ? CHIAKI_CONTROLLER_BUTTON_MOON : 0;
 	state.buttons |= SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_X) ? CHIAKI_CONTROLLER_BUTTON_BOX : 0;
@@ -287,7 +361,7 @@ ChiakiControllerState Controller::GetState()
 	state.left_y = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
 	state.right_x = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX);
 	state.right_y = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY);
-
+ */
 #endif
 	return state;
 }
